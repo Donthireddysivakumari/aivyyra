@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "baseUrl": "./aivyra-frontend",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["aivyra-frontend/next-env.d.ts", "aivyra-frontend/**/*.ts", "aivyra-frontend/**/*.tsx", "aivyra-frontend/.next/types/**/*.ts"],
+  "exclude": ["node_modules", "aivyra-frontend/node_modules", "aivyra-backend"]
+}

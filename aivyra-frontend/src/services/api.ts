@@ -1,0 +1,132 @@
+import axios from "axios";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Auto-attach authorization token
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("aivyra_token");
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+// Authentication endpoints
+export const authService = {
+  register: async (payload: any) => {
+    const res = await api.post("/auth/register", payload);
+    return res.data;
+  },
+  login: async (payload: any) => {
+    const res = await api.post("/auth/login-json", payload);
+    return res.data;
+  },
+  getCurrentUser: async () => {
+    const res = await api.get("/users/me");
+    return res.data;
+  },
+};
+
+// Course endpoints
+export const courseService = {
+  list: async () => {
+    const res = await api.get("/courses");
+    return res.data;
+  },
+  getDetails: async (id: number) => {
+    const res = await api.get(`/courses/${id}`);
+    return res.data;
+  },
+  updateProgress: async (id: number, completionPercentage: number) => {
+    const res = await api.post(`/courses/${id}/progress`, {
+      completion_percentage: completionPercentage,
+    });
+    return res.data;
+  },
+  getStudentProgress: async () => {
+    const res = await api.get("/courses/progress/all");
+    return res.data;
+  },
+  getMyCertificates: async () => {
+    const res = await api.get("/courses/certificates/my");
+    return res.data;
+  },
+};
+
+// Quiz endpoints
+export const quizService = {
+  getQuiz: async (id: number) => {
+    const res = await api.get(`/quizzes/${id}`);
+    return res.data;
+  },
+  submitAttempt: async (id: number, score: number) => {
+    const res = await api.post(`/quizzes/${id}/attempt`, { score });
+    return res.data;
+  },
+  submitAssessment: async (skillName: string, score: number) => {
+    const res = await api.post("/quizzes/assessments", {
+      skill_name: skillName,
+      score,
+    });
+    return res.data;
+  },
+  getMyAttempts: async () => {
+    const res = await api.get("/quizzes/attempts/my");
+    return res.data;
+  },
+  getMyAssessments: async () => {
+    const res = await api.get("/quizzes/assessments/my");
+    return res.data;
+  },
+};
+
+// User/Profile dashboard stats
+export const userService = {
+  getCurrentUser: async () => {
+    const res = await api.get("/users/me");
+    return res.data;
+  },
+  getStudentStats: async () => {
+    const res = await api.get("/users/student-dashboard-stats");
+    return res.data;
+  },
+  getStudentsList: async () => {
+    const res = await api.get("/users/students");
+    return res.data;
+  },
+  getStudentById: async (id: number) => {
+    const res = await api.get(`/users/students/${id}`);
+    return res.data;
+  },
+  getPlatformStats: async () => {
+    const res = await api.get("/users/stats");
+    return res.data;
+  },
+};
+
+// AI analytics endpoints
+export const aiService = {
+  getSkillGap: async (studentId: number) => {
+    const res = await api.post("/ai/skill-gap-analysis", { student_id: studentId });
+    return res.data;
+  },
+  getRecommendations: async (studentId: number) => {
+    const res = await api.post("/ai/recommendations", { student_id: studentId });
+    return res.data;
+  },
+  getPerformancePrediction: async (studentId: number) => {
+    const res = await api.post("/ai/performance-prediction", { student_id: studentId });
+    return res.data;
+  },
+};
