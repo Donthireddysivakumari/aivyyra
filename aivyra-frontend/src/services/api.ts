@@ -9,7 +9,7 @@ export const api = axios.create({
   },
 });
 
-// Auto-attach authorization token
+// Auto-attach authorization token on every request
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("aivyra_token");
@@ -21,6 +21,30 @@ api.interceptors.request.use((config) => {
 }, (error) => {
   return Promise.reject(error);
 });
+
+// Global 401 interceptor — auto-logout when token expires or is invalid
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      typeof window !== "undefined" &&
+      error?.response?.status === 401
+    ) {
+      // Clear all stored auth credentials
+      localStorage.removeItem("aivyra_token");
+      localStorage.removeItem("aivyra_role");
+      localStorage.removeItem("aivyra_name");
+      localStorage.removeItem("aivyra_userId");
+
+      // Only redirect if not already on login/register page
+      const currentPath = window.location.pathname;
+      if (!currentPath.startsWith("/login") && !currentPath.startsWith("/register")) {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Authentication endpoints
 export const authService = {

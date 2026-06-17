@@ -12,7 +12,7 @@ from . import models
 # Configs
 SECRET_KEY = os.getenv("SECRET_KEY", "aivyra_super_secret_jwt_key_2026")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours — generous for dev/demo sessions
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 # Using bcrypt directly — passlib is broken on Python 3.14

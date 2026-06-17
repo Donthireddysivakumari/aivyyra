@@ -86,7 +86,6 @@ export default function StudentDashboard() {
       // Fetch full profile info if not loaded yet
       let studentId = userProfile?.profile?.id;
       if (!studentId) {
-        const profile = await userService.getStudentById(userId); // wait, userProfile holds student_profile
         const fullProf = await userService.getCurrentUser();
         useAuthStore.getState().setProfile(fullProf);
         studentId = fullProf.profile?.id;

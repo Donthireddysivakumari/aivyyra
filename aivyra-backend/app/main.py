@@ -13,10 +13,20 @@ app = FastAPI(
     version="1.0.0"
 )
 
+import os
+
+# CORS origins — allow dev localhost + production Vercel frontend
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    # Production Vercel domain set via FRONTEND_URL env var
+    os.getenv("FRONTEND_URL", "*"),
+]
+
 # CORS Middleware config
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust for production
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -14,6 +14,14 @@ if __name__ == "__main__":
     train_and_save_models()
     print("---------------------------------------------")
     
-    print("Launching FastAPI Web Server...")
+    # Read host and port from environment (Render/Railway set PORT)
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", 8000))
+    
+    # Enable reload only if not in production (i.e. if PORT is not set by cloud provider)
+    reload_mode = os.environ.get("PORT") is None
+    
+    print(f"Launching FastAPI Web Server on {host}:{port} (reload={reload_mode})...")
     # Run the uvicorn development server
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("app.main:app", host=host, port=port, reload=reload_mode)
+
