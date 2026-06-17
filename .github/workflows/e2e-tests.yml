@@ -1,0 +1,100 @@
+name: E2E and Functional Testing Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      # Optional postgres service container if we ever migrate, currently defaults to SQLite
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: aivyra
+          POSTGRES_PASSWORD: aivyra_pass
+          POSTGRES_DB: aivyratutor
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-node-version: '3.10'
+        cache: 'pip'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: aivyra-frontend/package-lock.json
+
+    - name: Install System Dependencies for Headless Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    - name: Install Backend and Test Python Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r aivyra-backend/requirements.txt
+        pip install -r tests/requirements.txt
+
+    - name: Install Frontend Node Dependencies
+      run: |
+        cd aivyra-frontend
+        npm ci
+
+    - name: Start FastAPI Backend in Background
+      env:
+        DATABASE_URL: sqlite:///./aivyra.db
+        SECRET_KEY: aivyra_super_secret_jwt_key_2026
+      run: |
+        cd aivyra-backend
+        python run.py &
+        # Wait for backend to be ready
+        sleep 5
+
+    - name: Start Next.js Frontend in Background
+      env:
+        NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
+      run: |
+        cd aivyra-frontend
+        npm run dev &
+        # Wait for frontend to start
+        sleep 10
+
+    - name: Execute Selenium E2E Test Suite
+      env:
+        FRONTEND_URL: http://localhost:3000
+        BACKEND_URL: http://localhost:8000
+      run: |
+        python tests/test_runner.py
+
+    - name: Upload Excel Test Report as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: E2E-Test-Report-Excel
+        path: E2E_Test_Report_Aivyra.xlsx
+
+    - name: Commit and Push Report back to Repo (if updated)
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add E2E_Test_Report_Aivyra.xlsx
+        git diff-index --quiet HEAD || git commit -m "chore: update E2E test report Excel file [skip ci]"
+        git push origin main || echo "No changes or push failed"
