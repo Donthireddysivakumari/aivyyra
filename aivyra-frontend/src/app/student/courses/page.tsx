@@ -152,6 +152,20 @@ export default function StudentCourses() {
                             <h5 className="font-bold text-slate-900 text-sm">{lesson.title}</h5>
                           </div>
                           <p className="text-xs text-slate-600 leading-relaxed pl-9">{lesson.content}</p>
+                          {lesson.quizzes && lesson.quizzes.length > 0 && (
+                            <div className="pl-9 pt-2 flex flex-wrap gap-2">
+                              {lesson.quizzes.map((quiz: any) => (
+                                <button
+                                  key={quiz.id}
+                                  onClick={() => router.push(`/student/courses/quiz/${quiz.id}`)}
+                                  className="px-4 py-2 bg-indigo-50 border border-indigo-150 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-[11px] transition-all flex items-center gap-1.5 active:scale-[0.98]"
+                                >
+                                  <BookOpen className="w-3.5 h-3.5" />
+                                  <span>Take Quiz: {quiz.title}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
 

@@ -30,13 +30,31 @@ def get_course_details(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Course not found")
     
     lessons = db.query(models.Lesson).filter(models.Lesson.course_id == id).all()
+    
+    lessons_data = []
+    for lesson in lessons:
+        quizzes = db.query(models.Quiz).filter(models.Quiz.lesson_id == lesson.id).all()
+        quizzes_data = []
+        for q in quizzes:
+            quizzes_data.append({
+                "id": q.id,
+                "title": q.title
+            })
+        lessons_data.append({
+            "id": lesson.id,
+            "title": lesson.title,
+            "content": lesson.content,
+            "course_id": lesson.course_id,
+            "quizzes": quizzes_data
+        })
+        
     return {
         "id": course.id,
         "title": course.title,
         "description": course.description,
         "category": course.category,
         "level": course.level,
-        "lessons": lessons
+        "lessons": lessons_data
     }
 
 @router.post("/{id}/lessons", response_model=schemas.LessonResponse)

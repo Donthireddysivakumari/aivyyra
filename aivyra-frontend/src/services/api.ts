@@ -95,7 +95,7 @@ export const quizService = {
     return res.data;
   },
   submitAttempt: async (id: number, score: number) => {
-    const res = await api.post(`/quizzes/${id}/attempt`, { score });
+    const res = await api.post(`/quizzes/${id}/attempt`, { quiz_id: id, score });
     return res.data;
   },
   submitAssessment: async (skillName: string, score: number) => {
