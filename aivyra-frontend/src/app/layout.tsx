@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import CapacitorInitializer from "@/components/CapacitorInitializer";
 
 export const metadata: Metadata = {
   title: "Aivyra-Tutor - AI-Powered Rural Education Platform",
@@ -14,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <CapacitorInitializer />
         {children}
       </body>
     </html>

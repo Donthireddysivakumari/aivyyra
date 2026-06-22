@@ -1,6 +1,13 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+// Dynamically determine the default API endpoint based on environment
+let defaultApiUrl = "http://127.0.0.1:8000";
+if (typeof window !== "undefined" && (window as any).Capacitor) {
+  // Use the Android emulator host loopback address when running inside Capacitor
+  defaultApiUrl = "http://10.0.2.2:8000";
+}
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || defaultApiUrl;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
