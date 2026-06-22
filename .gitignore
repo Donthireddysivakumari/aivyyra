@@ -66,3 +66,6 @@ aivyra-backend/.env
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Timestamped E2E reports
+E2E_Test_Report_Aivyra_*.xlsx
