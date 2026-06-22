@@ -670,6 +670,8 @@ report_filename = f"E2E_Test_Report_Aivyra_{timestamp}.xlsx"
 print(f"Writing spreadsheet report '{report_filename}'...")
 
 df_results = pd.DataFrame(test_cases)
+if "Type" in df_results.columns:
+    df_results = df_results.drop(columns=["Type"])
 
 # Calculate Metric Summaries
 ui_ux_total = len([t for t in test_cases if t["Category"] == "UI/UX"])
@@ -727,3 +729,28 @@ print(f"Static copy updated at: {os.path.abspath(static_filename)}")
 print("\n--- Summary Dashboard Metrics ---")
 print(df_summary.to_string(index=False))
 print("=====================================================================")
+
+# Write GitHub Actions step summary if running in CI
+if "GITHUB_STEP_SUMMARY" in os.environ:
+    summary_filepath = os.environ["GITHUB_STEP_SUMMARY"]
+    run_number = os.environ.get("GITHUB_RUN_NUMBER", "0")
+    branch_name = os.environ.get("GITHUB_REF_NAME", "main")
+    commit_sha = os.environ.get("GITHUB_SHA", "")
+    
+    markdown_content = f"""### 🧪 Aivyra Complete E2E Test Report — Run #{run_number}
+
+| Metric | Value |
+|---|---|
+| 🌿 Branch | `{branch_name}` |
+| 📝 Commit | `{commit_sha}` |
+| 🎯 Total Tests | {len(test_cases)} |
+| ✅ Passed | {pass_count} |
+| ❌ Failed | {fail_count} |
+| ⏭️ Skipped | 0 |
+"""
+    try:
+        with open(summary_filepath, "a", encoding="utf-8") as f:
+            f.write(markdown_content)
+        print("GitHub Actions step summary written successfully.")
+    except Exception as e:
+        print(f"Failed to write GitHub Actions step summary: {e}")
