@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Aivyra</string>
+    <string name="title_activity_main">Aivyra</string>
+    <string name="package_name">com.aivyra.app</string>
+    <string name="custom_url_scheme">com.aivyra.app</string>
+</resources>
